@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmark Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #fpsCounter {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="benchmarkCanvas"></canvas>
+    <div id="controls">
+        <label for="particleCount">Particles:</label>
+        <input type="number" id="particleCount" value="500" min="100" max="5000" step="100">
+        <div id="fpsCounter">FPS: 0</div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById("benchmarkCanvas");
+        const ctx = canvas.getContext("2d");
+        const fpsCounter = document.getElementById("fpsCounter");
+        const particleInput = document.getElementById("particleCount");
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+        
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let fps = 0;
+        let particleCount = parseInt(particleInput.value);
+        
+        particleInput.addEventListener("input", () => {
+            particleCount = parseInt(particleInput.value);
+        });
+        
+        function updateFPS() {
+            const now = performance.now();
+            fps = Math.round((frameCount * 1000) / (now - lastTime));
+            fpsCounter.textContent = `FPS: ${fps}`;
+            lastTime = now;
+            frameCount = 0;
+        }
+        
+        function benchmarkTest() {
+            frameCount++;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particleCount; i++) {
+                ctx.fillStyle = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+                ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 5, 5);
+            }
+            requestAnimationFrame(benchmarkTest);
+        }
+        
+        setInterval(updateFPS, 1000);
+        benchmarkTest();
+    </script>
+</body>
+</html>
